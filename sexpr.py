@@ -19,71 +19,83 @@
 # 3. This notice may not be removed or altered from any source distribution.
 
 import re
+import codecs
 
 def parse(text):
     stack = [[]]
     state = 'list'
     i = 0
+    line = 1
+    column = 0
     while i < len(text):
         c = text[i]
+        if c == '\n':
+            line += 1
+            column = 0
+        else:
+            column += 1
 
         if state == 'list':
             if c == '(':
                 stack.append([])
             elif c == ')':
-                tmp = stack.pop()
-                stack[-1].append(tmp)
+                stack[-2].append(stack.pop())
             elif c == "\"":
                 state = 'string'
-                stack.append("")
+                atom = ""
             elif c == ";":
                 state = 'comment'
-            elif str.isalpha(c):
+            elif c.isalpha():
                 state = 'symbol'
-                stack.append(c)
-            elif str.isdigit(c):
+                atom = c
+            elif c.isdigit():
                 state = 'number'
-                stack.append(c)
-            elif str.isspace(c):
+                atom = c
+            elif c.isspace():
                 pass
             else:
-                raise "error"
+                raise Exception("%d:%d: error: unexpected character: '%s'" % (line, column, c))
+
         elif state == 'comment':
             if c == '\n':
                 state = 'list'
             else:
                 pass
+
         elif state == 'string':
             if c == "\\":
-                pass
+                i += 1
+                atom += text[i]
             elif c == "\"":
-                tmp = stack.pop()
-                stack[-1].append(tmp)
-                state = 'list'                
+                stack[-1].append(atom)
+                state = 'list'
             else:
-                stack[-1] = stack[-1] + c
+                atom += c
+
         elif state == 'number':
-            if not str.isdigit(c) or c != ".":
-                tmp = stack.pop()
-                stack[-1].append(int(tmp))
+            if not c.isdigit() or c != ".":
+                stack[-1].append(int(atom))
                 state = 'list'
                 i -= 1
             else:
-                stack[-1] = stack[-1] + c           
+                atom += c
+
         elif state == 'symbol':
-            if str.isspace(c) or c == '(' or c == ')':
-                tmp = stack.pop()
-                stack[-1].append(tmp)
+            if c.isspace() or c == '(' or c == ')':
+                stack[-1].append(atom)
                 state = 'list'
                 i -= 1
             else:
-                stack[-1] = stack[-1] + c
+                atom += c
 
         # print c, stack
 
         i += 1
 
-    return stack[0]
+    if len(stack) == 1:
+        return stack[0]
+    else:
+        raise Exception("error: list not closed")
 
 if __name__ == "__main__":
     print "parsing..."
@@ -91,6 +103,10 @@ if __name__ == "__main__":
     print "1.", result
     print "2.", parse(""";;comment
     ("Hello World" 5 1 123) ("Hello" 123 123 "foobar") ;; comment""")
-    
+    print "3.", parse(r'(8(8)8)')
+    print "4.", parse(r'')
+    print "5.", parse(r'  ')
+    with codecs.open("white.stf", encoding='utf-8') as fin:
+        print "6.", parse(fin.read())
 
 # EOF #

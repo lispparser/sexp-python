@@ -18,6 +18,32 @@
 from sexp.value import Boolean, Integer, Real, Cons
 
 
+class TextIO:
+
+    def __init__(self, text):
+        self.text = text
+        self.i = 0
+
+        self.line = 1
+        self.column = 0
+
+    def getchar(self):
+        c = self.text[self.i]
+        if c == '\n':
+            self.line += 1
+            self.column = 0
+        else:
+            self.column += 1
+        self.i += 1
+        return c
+
+    def eof(self):
+        return self.i >= len(self.text)
+
+    def ungetchar(self):
+        self.i -= 1
+
+
 class Parser:
 
     @staticmethod
@@ -27,29 +53,14 @@ class Parser:
 
     @staticmethod
     def from_string(text):
-        parser = Parser(text)
+        parser = Parser(TextIO(text))
         return parser.parse()
 
-    def __init__(self, text):
-        self.text = text
+    def __init__(self, io):
+        self.io = io
         self.stack = [[]]
         self.state = self.parse_list
-        self.line = 1
-        self.column = 0
-        self.i = 0
         self.atom = ""
-
-    def getchar(self):
-        c = self.text[self.i]
-        if c == '\n':
-            self.line += 1
-            self.column = 0
-        else:
-            self.column += 1
-        return c
-
-    def ungetchar(self):
-        self.i -= 1
 
     def parse_list(self, c):
         if c == '(':
@@ -70,7 +81,7 @@ class Parser:
         elif c.isspace():
             pass
         else:
-            raise Exception("%d:%d: error: unexpected character: '%s'" % (self.line, self.column, c))
+            raise Exception("%d:%d: error: unexpected character: '%s'" % (self.io.line, self.io.column, c))
 
     def parse_comments(self, c):
         if c == '\n':
@@ -78,8 +89,7 @@ class Parser:
 
     def parse_string(self, c):
         if c == "\\":
-            self.i += 1
-            self.atom += self.text[self.i]
+            self.atom += self.io.getchar()
         elif c == "\"":
             self.stack[-1].append(self.atom)
             self.state = self.parse_list
@@ -90,7 +100,7 @@ class Parser:
         if not c.isdigit() or c != ".":
             self.stack[-1].append(int(self.atom))
             self.state = self.parse_list
-            self.ungetchar()
+            self.io.ungetchar()
         else:
             self.atom += c
 
@@ -98,15 +108,14 @@ class Parser:
         if c.isspace() or c == '(' or c == ')':
             self.stack[-1].append(self.atom)
             self.state = self.parse_list
-            self.ungetchar()
+            self.io.ungetchar()
         else:
             self.atom += c
 
     def parse(self):
-        while self.i < len(self.text):
-            c = self.getchar()
+        while not self.io.eof():
+            c = self.io.getchar()
             self.state(c)
-            self.i += 1
 
         if len(self.stack) == 1:
             return self.stack[0]

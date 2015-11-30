@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from sexp.value import Boolean, Integer, Real, Cons
+import sexp
 
 
 class TextIO:
@@ -66,7 +66,11 @@ class Parser:
         if c == '(':
             self.stack.append([])
         elif c == ')':
-            self.stack[-2].append(self.stack.pop())
+            v = self.stack.pop()
+            if v == []:
+                self.stack[-1].append(sexp.Nil())
+            else:
+                self.stack[-1].append(sexp.Array(v))
         elif c == "\"":
             self.state = self.parse_string
             self.atom = ""
@@ -81,7 +85,8 @@ class Parser:
         elif c.isspace():
             pass
         else:
-            raise Exception("%d:%d: error: unexpected character: '%s'" % (self.io.line, self.io.column, c))
+            raise Exception("%d:%d: error: unexpected character: '%s'" %
+                            (self.io.line, self.io.column, c))
 
     def parse_comments(self, c):
         if c == '\n':
@@ -91,14 +96,19 @@ class Parser:
         if c == "\\":
             self.atom += self.io.getchar()
         elif c == "\"":
-            self.stack[-1].append(self.atom)
+            self.stack[-1].append(sexp.String(self.atom))
             self.state = self.parse_list
         else:
             self.atom += c
 
     def parse_number(self, c):
-        if not c.isdigit() or c != ".":
-            self.stack[-1].append(int(self.atom))
+        if not c.isdigit() and c != ".":
+            if self.atom.count(".") == 0:
+                self.stack[-1].append(sexp.Integer(int(self.atom)))
+            elif self.atom.count(".") == 1:
+                self.stack[-1].append(sexp.Real(float(self.atom)))
+            else:
+                self.stack[-1].append(sexp.Symbol(self.atom))
             self.state = self.parse_list
             self.io.ungetchar()
         else:
@@ -106,7 +116,7 @@ class Parser:
 
     def parse_symbol(self, c):
         if c.isspace() or c == '(' or c == ')':
-            self.stack[-1].append(self.atom)
+            self.stack[-1].append(sexp.Symbol(self.atom))
             self.state = self.parse_list
             self.io.ungetchar()
         else:

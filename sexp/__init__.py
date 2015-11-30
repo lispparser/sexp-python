@@ -15,14 +15,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from .value import (Boolean, Integer, Real, Cons, Array, Nil,
+from .value import (Boolean, Integer, Real, Cons, Array, Symbol, String, Nil,
                     make_list)
 from .parser import Parser
 
 
 __all__ = [
-    "Boolean", "Integer", "Real", "Cons", "Array", "Nil", "make_list",
-    "Parser"
+    "Boolean", "Integer", "Real", "Cons", "Array", "Symbol", "String", "Nil",
+    "make_list", "Parser"
 ]
 
 

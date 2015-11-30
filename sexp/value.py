@@ -59,6 +59,9 @@ class Nil(Value):
     def is_nil(self):
         return True
 
+    def __eq__(self, other):
+        return other.is_nil()
+
     def __str__(self):
         return "()"
 
@@ -71,6 +74,9 @@ class Boolean(Value):
 
     def is_boolean(self):
         return True
+
+    def __eq__(self, other):
+        return other.is_boolean() and self.value == other.value
 
     def __str__(self):
         if self.value:
@@ -88,6 +94,9 @@ class Integer(Value):
     def is_integer(self):
         return True
 
+    def __eq__(self, other):
+        return other.is_integer() and self.value == other.value
+
     def __str__(self):
         return str(self.value)
 
@@ -100,6 +109,9 @@ class Real(Value):
 
     def is_real(self):
         return True
+
+    def __eq__(self, other):
+        return other.is_real() and self.value == other.value
 
     def __str__(self):
         return str(self.value)
@@ -114,6 +126,9 @@ class String(Value):
     def is_string(self):
         return True
 
+    def __eq__(self, other):
+        return other.is_string() and self.value == other.value
+
     def __str__(self):
         return str(self.value)
 
@@ -126,6 +141,9 @@ class Symbol(Value):
 
     def is_symbol(self):
         return True
+
+    def __eq__(self, other):
+        return other.is_symbol() and self.value == other.value
 
     def __str__(self):
         return str(self.value)
@@ -146,6 +164,9 @@ class Cons(Value):
 
     def get_cdr(self):
         return self.cdr
+
+    def __eq__(self, other):
+        return other.is_cons() and self.car == other.car and self.cdr == other.cdr
 
     def __str__(self):
         result = "("
@@ -168,11 +189,14 @@ class Cons(Value):
 
 class Array(Value):
 
-    def __init__(self, *values, pos=None):
+    def __init__(self, values, pos=None):
         self.values = values
 
     def is_array(self):
         return True
+
+    def __eq__(self, other):
+        return other.is_array() and self.values == other.values
 
     def __str__(self):
         return "#(" + " ".join([str(v) for v in self.values]) + ")"

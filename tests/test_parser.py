@@ -17,13 +17,15 @@
 
 import unittest
 from sexp.parser import Parser
+from sexp.value import Integer, Real, Array
 
 
 class ParserTest(unittest.TestCase):
 
     def test_parse(self):
-        sx = Parser.from_string("(1 2 3 4 5)")
-        self.assertEqual(sx, [[1, 2, 3, 4, 5]])
+        sx1 = Parser.from_string("(1.0 2 3 4 5)")
+        sx2 = [Array([Real(1.0), Integer(2), Integer(3), Integer(4), Integer(5)])]
+        self.assertEqual(sx1, sx2)
 
 
 # EOF #

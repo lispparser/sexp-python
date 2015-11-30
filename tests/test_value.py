@@ -47,8 +47,16 @@ class Value(unittest.TestCase):
         self.assertEqual(str(v), "(1 2 3 4)")
 
     def test_array(self):
-        v = sexp.Array(1, 2, 3, 4, 5, pos=(1, 5))
+        v = sexp.Array([1, 2, 3, 4, 5], pos=(1, 5))
         self.assertEqual(str(v), "#(1 2 3 4 5)")
+
+    def test_eq(self):
+        self.assertTrue(sexp.Boolean(True) == sexp.Boolean(True))
+        self.assertEqual(sexp.Boolean(True), sexp.Boolean(True))
+        self.assertEqual(sexp.Integer(1), sexp.Integer(1))
+        self.assertEqual(sexp.Real(5), sexp.Real(5))
+        self.assertEqual(sexp.String("HelloWorld"), sexp.String("HelloWorld"))
+        self.assertEqual(sexp.Symbol("HelloWorld"), sexp.Symbol("HelloWorld"))
 
 
 if __name__ == '__main__':

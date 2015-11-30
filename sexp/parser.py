@@ -14,87 +14,102 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+from sexp.value import Boolean, Integer, Real, Cons
+
+
 class Parser:
 
     @staticmethod
     def from_file(filename):
         with open(filename, "r") as fin:
-            return from_string(fin.read())
+            return Parser.from_string(fin.read())
 
     @staticmethod
     def from_string(text):
-        stack = [[]]
-        state = 'list'
-        i = 0
-        line = 1
-        column = 0
-        while i < len(text):
-            c = text[i]
-            if c == '\n':
-                line += 1
-                column = 0
-            else:
-                column += 1
+        parser = Parser(text)
+        return parser.parse()
 
-            if state == 'list':
-                if c == '(':
-                    stack.append([])
-                elif c == ')':
-                    stack[-2].append(stack.pop())
-                elif c == "\"":
-                    state = 'string'
-                    atom = ""
-                elif c == ";":
-                    state = 'comment'
-                elif c.isalpha():
-                    state = 'symbol'
-                    atom = c
-                elif c.isdigit():
-                    state = 'number'
-                    atom = c
-                elif c.isspace():
-                    pass
-                else:
-                    raise Exception("%d:%d: error: unexpected character: '%s'" % (line, column, c))
+    def __init__(self, text):
+        self.text = text
+        self.stack = [[]]
+        self.state = self.parse_list
+        self.line = 1
+        self.column = 0
+        self.i = 0
+        self.atom = ""
 
-            elif state == 'comment':
-                if c == '\n':
-                    state = 'list'
-                else:
-                    pass
+    def getchar(self):
+        c = self.text[self.i]
+        if c == '\n':
+            self.line += 1
+            self.column = 0
+        else:
+            self.column += 1
+        return c
 
-            elif state == 'string':
-                if c == "\\":
-                    i += 1
-                    atom += text[i]
-                elif c == "\"":
-                    stack[-1].append(atom)
-                    state = 'list'
-                else:
-                    atom += c
+    def ungetchar(self):
+        self.i -= 1
 
-            elif state == 'number':
-                if not c.isdigit() or c != ".":
-                    stack[-1].append(int(atom))
-                    state = 'list'
-                    i -= 1
-                else:
-                    atom += c
+    def parse_list(self, c):
+        if c == '(':
+            self.stack.append([])
+        elif c == ')':
+            self.stack[-2].append(self.stack.pop())
+        elif c == "\"":
+            self.state = self.parse_string
+            self.atom = ""
+        elif c == ";":
+            self.state = self.parse_comment
+        elif c.isalpha():
+            self.state = self.parse_symbol
+            self.atom = c
+        elif c.isdigit():
+            self.state = self.parse_number
+            self.atom = c
+        elif c.isspace():
+            pass
+        else:
+            raise Exception("%d:%d: error: unexpected character: '%s'" % (self.line, self.column, c))
 
-            elif state == 'symbol':
-                if c.isspace() or c == '(' or c == ')':
-                    stack[-1].append(atom)
-                    state = 'list'
-                    i -= 1
-                else:
-                    atom += c
+    def parse_comments(self, c):
+        if c == '\n':
+            self.state = self.parse_list
 
-            # print c, stack
+    def parse_string(self, c):
+        if c == "\\":
+            self.i += 1
+            self.atom += self.text[self.i]
+        elif c == "\"":
+            self.stack[-1].append(self.atom)
+            self.state = self.parse_list
+        else:
+            self.atom += c
 
-            i += 1
+    def parse_number(self, c):
+        if not c.isdigit() or c != ".":
+            self.stack[-1].append(int(self.atom))
+            self.state = self.parse_list
+            self.ungetchar()
+        else:
+            self.atom += c
 
-        if len(stack) == 1:
-            return stack[0]
+    def parse_symbol(self, c):
+        if c.isspace() or c == '(' or c == ')':
+            self.stack[-1].append(self.atom)
+            self.state = self.parse_list
+            self.ungetchar()
+        else:
+            self.atom += c
+
+    def parse(self):
+        while self.i < len(self.text):
+            c = self.getchar()
+            self.state(c)
+            self.i += 1
+
+        if len(self.stack) == 1:
+            return self.stack[0]
         else:
             raise Exception("error: list not closed")
 

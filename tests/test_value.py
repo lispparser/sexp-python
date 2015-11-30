@@ -32,7 +32,6 @@ class Value(unittest.TestCase):
         v = sexp.Cons(sexp.Integer(5), sexp.Integer(5))
         self.assertEqual(str(v), "(5 . 5)")
 
-    def test_cons(self):
         v = sexp.Cons(sexp.Integer(1),
                       sexp.Cons(sexp.Integer(2),
                                 sexp.Cons(sexp.Integer(3),

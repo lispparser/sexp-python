@@ -23,7 +23,7 @@ class ParserTest(unittest.TestCase):
 
     def test_parse(self):
         sx = Parser.from_string("(1 2 3 4 5)")
-        print(">>>>>>>", sx)
+        self.assertEqual(sx, [[1, 2, 3, 4, 5]])
 
 
 # EOF #

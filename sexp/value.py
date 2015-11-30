@@ -44,10 +44,10 @@ class Value:
     def is_array(self):
         return False
 
-    def line():
+    def line(self):
         return self.pos[0]
 
-    def column():
+    def column(self):
         return self.pos[1]
 
 

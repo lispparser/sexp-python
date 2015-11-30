@@ -18,7 +18,7 @@ SOURCES := $(wildcard \
   sexp/*.py \
   tests/*.py)
 
-all: autopep flake test
+all: flake test # autopep
 
 autopep:
 	autopep8  --max-line=120  --in-place $(SOURCES)

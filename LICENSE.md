@@ -1,4 +1,4 @@
-Copyright (c) 2014 Ingo Ruhnke <grumbel@gmail.com>
+Copyright (c) 2015 Ingo Ruhnke <grumbel@gmail.com>
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages

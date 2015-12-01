@@ -53,6 +53,9 @@ class Value:
     def column(self):
         return self.pos[1]
 
+    def __repr__(self):
+        return self.__str__()
+
 
 class Nil(Value):
 
@@ -133,7 +136,7 @@ class String(Value):
         return other.is_string() and self.value == other.value
 
     def __str__(self):
-        return str(self.value)
+        return '"' + str(self.value) + '"'
 
 
 class Symbol(Value):
@@ -202,7 +205,7 @@ class Array(Value):
         return other.is_array() and self.values == other.values
 
     def __str__(self):
-        return "#(" + " ".join([str(v) for v in self.values]) + ")"
+        return "(" + " ".join([str(v) for v in self.values]) + ")"
 
 
 def make_list(*values):

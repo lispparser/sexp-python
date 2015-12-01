@@ -48,7 +48,7 @@ class Value(unittest.TestCase):
 
     def test_array(self):
         v = sexp.Array([1, 2, 3, 4, 5], pos=(1, 5))
-        self.assertEqual(str(v), "#(1 2 3 4 5)")
+        self.assertEqual(str(v), "(1 2 3 4 5)")
 
     def test_eq(self):
         self.assertTrue(sexp.Boolean(True) == sexp.Boolean(True))

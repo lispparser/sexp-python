@@ -22,10 +22,31 @@ from sexp.value import Integer, Real, Array
 
 class ParserTest(unittest.TestCase):
 
+    def cmp(self, sxi_str, sxo_str):
+        self.assertEqual(str(Parser.from_string(sxi_str)), sxo_str)
+
     def test_parse(self):
         sx1 = Parser.from_string("(1.0 2 3 4 5)")
         sx2 = [Array([Real(1.0), Integer(2), Integer(3), Integer(4), Integer(5)])]
         self.assertEqual(sx1, sx2)
+
+        self.cmp('(() ("bar" foo) ()) () bar ',
+                 '[(() ("bar" foo) ()), (), bar]')
+
+        self.cmp(';;comment\n("Hello World" 5 1 123) ("Hello" 123 123 "foobar") ;; comment',
+                 '[("Hello World" 5 1 123), ("Hello" 123 123 "foobar")]')
+
+        self.cmp('(8(8)8)',
+                 '[(8 (8) 8)]')
+
+        self.cmp('',
+                 '[]')
+
+        self.cmp('  ',
+                 '[]')
+
+        sxi = Parser.from_file("tests/white.stf")
+        # self.assertEqual(sxi, sxo)
 
 
 # EOF #

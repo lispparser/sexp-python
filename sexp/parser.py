@@ -90,7 +90,7 @@ class Parser:
             raise Exception("%d:%d: error: unexpected character: '%s'" %
                             (self.io.line, self.io.column, c))
 
-    def parse_comments(self, c):
+    def parse_comment(self, c):
         if c == '\n':
             self.state = self.parse_list
 

@@ -45,6 +45,9 @@ class TextIO:
     def ungetchar(self):
         self.i -= 1
 
+    def get_pos(self):
+        return (self.line, self.column)
+
 
 class Parser:
 
@@ -63,6 +66,7 @@ class Parser:
         self.stack = [[]]
         self.state = self.parse_list
         self.atom = ""
+        self.atom_pos = (-1, -1)
 
     def parse_list(self, c):
         if c == '(':
@@ -76,14 +80,17 @@ class Parser:
         elif c == "\"":
             self.state = self.parse_string
             self.atom = ""
+            self.atom_pos = self.io.get_pos()
         elif c == ";":
             self.state = self.parse_comment
         elif c.isalpha():
             self.state = self.parse_symbol
             self.atom = c
+            self.atom_pos = self.io.get_pos()
         elif c.isdigit():
             self.state = self.parse_number
             self.atom = c
+            self.atom_pos = self.io.get_pos()
         elif c.isspace():
             pass
         else:
@@ -98,7 +105,7 @@ class Parser:
         if c == "\\":
             self.atom += self.io.getchar()
         elif c == "\"":
-            self.stack[-1].append(sexp.String(self.atom))
+            self.stack[-1].append(sexp.String(self.atom, pos=self.atom_pos))
             self.state = self.parse_list
         else:
             self.atom += c
@@ -106,11 +113,11 @@ class Parser:
     def parse_number(self, c):
         if not c.isdigit() and c != ".":
             if self.atom.count(".") == 0:
-                self.stack[-1].append(sexp.Integer(int(self.atom)))
+                self.stack[-1].append(sexp.Integer(int(self.atom), pos=self.atom_pos))
             elif self.atom.count(".") == 1:
-                self.stack[-1].append(sexp.Real(float(self.atom)))
+                self.stack[-1].append(sexp.Real(float(self.atom), pos=self.atom_pos))
             else:
-                self.stack[-1].append(sexp.Symbol(self.atom))
+                self.stack[-1].append(sexp.Symbol(self.atom, pos=self.atom_pos))
             self.state = self.parse_list
             self.io.ungetchar()
         else:
@@ -118,7 +125,7 @@ class Parser:
 
     def parse_symbol(self, c):
         if c.isspace() or c == '(' or c == ')':
-            self.stack[-1].append(sexp.Symbol(self.atom))
+            self.stack[-1].append(sexp.Symbol(self.atom, pos=self.atom_pos))
             self.state = self.parse_list
             self.io.ungetchar()
         else:

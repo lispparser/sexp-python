@@ -25,13 +25,10 @@ setup(name='sexp',
       scripts=[],
       entry_points={
           'console_scripts': [
-          ],
-          'gui_scripts': []
-          },
-      install_requires=[
-      ],
-      packages=['sexp']
-)
+              'sexp-tool = sexp.cmd_tool:main_entrypoint',
+          ]
+      },
+      packages=find_packages())
 
 
 # EOF #

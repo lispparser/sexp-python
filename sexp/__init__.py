@@ -15,14 +15,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from .value import (Boolean, Integer, Real, Cons, Array, Symbol, String, Nil,
-                    make_list)
+from .value import (Value, Boolean, Integer, Real, Cons, Array, Symbol, String, Nil,
+                    make_list, is_list, list_ref)
 from .parser import Parser
+from .prettyprint import pretty_print
 
 
 __all__ = [
-    "Boolean", "Integer", "Real", "Cons", "Array", "Symbol", "String", "Nil",
-    "make_list", "Parser"
+    "Value", "Boolean", "Integer", "Real", "Cons", "Array", "Symbol", "String", "Nil",
+    "make_list", "is_list", "list_ref",
+    "Parser",
+    "pretty_print"
 ]
 
 

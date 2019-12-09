@@ -125,6 +125,11 @@ class Real(Value):
 
 class String(Value):
 
+    escape_tbl = str.maketrans({
+        '"': r'\"',
+        # '\n': r'\n',
+    })
+
     def __init__(self, v, pos=None):
         super().__init__(pos)
         self.value = v
@@ -136,7 +141,7 @@ class String(Value):
         return other.is_string() and self.value == other.value
 
     def __str__(self):
-        return '"' + str(self.value) + '"'
+        return '"{}"'.format(self.value.translate(String.escape_tbl))
 
 
 class Symbol(Value):

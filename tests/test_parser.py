@@ -45,6 +45,12 @@ class ParserTest(unittest.TestCase):
         self.cmp('  ',
                  '[]')
 
+        self.cmp('#t',
+                 '[#t]')
+
+        self.cmp('#f',
+                 '[#f]')
+
         sxi = Parser.from_file("tests/white.stf")
         # self.assertEqual(sxi, sxo)
 

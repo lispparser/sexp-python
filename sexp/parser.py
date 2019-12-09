@@ -83,12 +83,16 @@ class Parser:
             self.atom_pos = self.io.get_pos()
         elif c == ";":
             self.state = self.parse_comment
-        elif c.isalpha():
+        elif c.isalpha() or c == "_":  # FIXME: make proper set of allowed characters
             self.state = self.parse_symbol
             self.atom = c
             self.atom_pos = self.io.get_pos()
-        elif c.isdigit():
+        elif c.isdigit() or c == '-':
             self.state = self.parse_number
+            self.atom = c
+            self.atom_pos = self.io.get_pos()
+        elif c == '#':
+            self.state = self.parse_bool
             self.atom = c
             self.atom_pos = self.io.get_pos()
         elif c.isspace():
@@ -122,6 +126,17 @@ class Parser:
             self.io.ungetchar()
         else:
             self.atom += c
+
+    def parse_bool(self, c):
+        if c == 't':
+            self.stack[-1].append(sexp.Boolean(True, pos=self.atom_pos))
+            self.state = self.parse_list
+        elif c == 'f':
+            self.stack[-1].append(sexp.Boolean(False, pos=self.atom_pos))
+            self.state = self.parse_list
+        else:
+            raise Exception("%d:%d: error: unexpected character: '%s'" %
+                            (self.io.line, self.io.column, c))
 
     def parse_symbol(self, c):
         if c.isspace() or c == '(' or c == ')':

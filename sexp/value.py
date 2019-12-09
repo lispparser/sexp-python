@@ -201,11 +201,49 @@ class Array(Value):
     def is_array(self):
         return True
 
+    def __len__(self):
+        return len(self.values)
+
+    def __getitem__(self, idx):
+        return self.values[idx]
+
+    def __iter__(self):
+        return iter(self.values)
+
     def __eq__(self, other):
         return other.is_array() and self.values == other.values
 
     def __str__(self):
         return "(" + " ".join([str(v) for v in self.values]) + ")"
+
+
+def is_list(sx: Value) -> bool:
+    if sx.is_cons():
+        return is_list(sx.cdr())
+    elif sx.is_nil():
+        return True
+    else:
+        return False
+
+
+def list_length(sx: Value) -> int:
+    count = 0
+    cur = sx
+    while not cur.is_nil():
+        count += 1
+        cur = sx.cdr()
+    return count
+
+
+def list_ref(sx: Value, idx: int) -> Value:
+    count = 0
+    cur = sx
+    while not cur.is_nil():
+        if count  == idx:
+            return sx.car()
+        count += 1
+        cur = sx.cdr()
+    raise Exception("index out of bounds")
 
 
 def make_list(*values):

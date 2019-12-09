@@ -39,6 +39,11 @@ class Value(unittest.TestCase):
                                                     sexp.Nil()))))
         self.assertEqual(str(v), "(1 2 3 4)")
 
+    def test_string(self):
+        self.assertEqual(str(sexp.String("HelloWorld")), '"HelloWorld"')
+        self.assertEqual(str(sexp.String("Hello\nWorld")), "\"Hello\\nWorld\"")
+        self.assertEqual(str(sexp.String("Hello\"World")), "\"Hello\\\"World\"")
+
     def test_list(self):
         v = sexp.make_list(sexp.Integer(1),
                            sexp.Integer(2),

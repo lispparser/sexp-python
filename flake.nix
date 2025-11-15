@@ -2,7 +2,7 @@
   description = "Python S-Expression Parser";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
+    nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -18,6 +18,8 @@
           sexp-python = pythonPackages.buildPythonPackage {
             name = "sexp-python";
             src = nixpkgs.lib.cleanSource ./.;
+            pyproject = true;
+            build-system = [ pythonPackages.setuptools ];
           };
         };
       }

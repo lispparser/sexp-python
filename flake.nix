@@ -10,7 +10,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        pythonPackages = pkgs.python311Packages;
+        pythonPackages = pkgs.python3Packages;
       in {
         packages = rec {
           default = sexp-python;
